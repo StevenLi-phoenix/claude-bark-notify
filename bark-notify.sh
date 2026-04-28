@@ -21,8 +21,7 @@ tx=$(printf '%s' "$data" | jq -r '.transcript_path // ""' 2>/dev/null)
 body=""
 if [ -n "$tx" ] && [ -f "$tx" ]; then
   body=$(tail -n 500 "$tx" 2>/dev/null \
-    | jq -r 'select(.type == "assistant") | .message.content[]? | select(.type == "text") | .text' 2>/dev/null \
-    | tail -n 1 \
+    | jq -rs '[.[] | select(.type == "assistant")] | last // empty | .message.content[]? | select(.type == "text") | .text' 2>/dev/null \
     | head -c "$MAX_BODY")
 fi
 if [ -z "$body" ]; then
